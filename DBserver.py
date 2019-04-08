@@ -1,5 +1,10 @@
 # _*_ coding:utf-8 _*_
 import pymysql
+import threading
+
+
+lock = threading.Lock()
+
 
 class DBConnector(object):
 
@@ -42,8 +47,10 @@ class DBConnector(object):
         :return:查询结果
         """
         try:
+            lock.acquire()
             self.db_connect.commit()
             self.cursor.execute(sql)
+            lock.release()
             return self.cursor.fetchall()
         except Exception as data:
             print('Error: query failed: %s' % data)
@@ -53,9 +60,11 @@ class DBConnector(object):
         :param sql:
         :return:
         """
-        try:
+                try:
+            lock.acquire()
             self.cursor.execute(sql)
             self.db_connect.commit()
+            lock.release()
         except Exception as data:
             print('Error: update failed: %s' % data)
 
